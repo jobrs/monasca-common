@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Hewlett-Packard Development Company, L.P.
+ * (C) Copyright 2014,2016 Hewlett Packard Enterprise Development Company LP
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,25 @@
  */
 package monasca.common.model.alarm;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum AlarmSeverity {
-  LOW, MEDIUM, HIGH, CRITICAL
+  LOW, MEDIUM, HIGH, CRITICAL;
+
+  public static AlarmSeverity fromString(String text) {
+    if (text != null) {
+      for (AlarmSeverity alarmSeverity : AlarmSeverity.values()) {
+        if (text.equalsIgnoreCase(alarmSeverity.toString())) {
+          return alarmSeverity;
+        }
+      }
+    }
+    return null;
+  }
+
+  @JsonCreator
+  public static AlarmSeverity fromJson(@JsonProperty("severity") String text) {
+    return AlarmSeverity.valueOf(text.toUpperCase());
+  }
 }
