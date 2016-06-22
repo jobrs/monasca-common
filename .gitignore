@@ -3,8 +3,16 @@
 *.project
 *.target/
 *.settings/
+.idea
 target/
 test-output/
 test-config.yml
 *.swp
 *.iml
+bin/
+*.pyc
+.tox
+build
+dist
+*.egg-info
+*.egg
