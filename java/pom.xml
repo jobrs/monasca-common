@@ -14,9 +14,8 @@
 
   <properties>
     <!-- Versioning -->
-    <versionNumber>1.1.0</versionNumber>
-    <computedVersion>${versionNumber}</computedVersion>
-
+    <versionNumber>1.2.0</versionNumber>
+    <computedVersion>${versionNumber}-SNAPSHOT</computedVersion>
     <skipITs>true</skipITs>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
