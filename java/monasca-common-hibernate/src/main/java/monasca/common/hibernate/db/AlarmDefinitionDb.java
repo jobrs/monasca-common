@@ -263,6 +263,7 @@ public class AlarmDefinitionDb
   }
 
   public interface Queries {
+    String DELETE_BY_ID = "AlarmDefinition.deleteById";
     String FIND_BY_TENANT_AND_ID_NOT_DELETED = "AlarmDefinition.byTenantAndIdNotDeleted";
     String FIND_BY_TENANT_ID_AND_ID = "AlarmDefinition.byTenantIdAndId";
   }
