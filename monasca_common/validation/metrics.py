@@ -1,4 +1,4 @@
-# (C) Copyright 2016 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2016-2017 Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 import re
 import ujson
 
@@ -75,6 +76,8 @@ def validate_metric(metric):
 
 
 def validate_value_meta(value_meta):
+    if value_meta is None:
+        return
     if len(value_meta) > VALUE_META_MAX_NUMBER:
         msg = "Too many valueMeta entries {0}, limit is {1}: valueMeta {2}".\
             format(len(value_meta), VALUE_META_MAX_NUMBER, value_meta)
@@ -99,33 +102,39 @@ def validate_value_meta(value_meta):
         raise InvalidValueMeta("Unable to serialize valueMeta into JSON")
 
 
+def validate_dimension_key(k):
+    if not isinstance(k, (str, unicode)):
+        msg = "invalid dimension key type: " \
+              "{0} is not a string type".format(k)
+        raise InvalidDimensionKey(msg)
+    if len(k) > 255 or len(k) < 1:
+        msg = "invalid length ({0}) for dimension key {1}". \
+            format(len(k), k)
+        raise InvalidDimensionKey(msg)
+    if RESTRICTED_DIMENSION_CHARS.search(k) or re.match('^_', k):
+        msg = "invalid characters in dimension key {0}". \
+            format(k)
+        raise InvalidDimensionKey(msg)
+
+
+def validate_dimension_value(k, v):
+    if not isinstance(v, (str, unicode)):
+        msg = "invalid dimension value type: {0} must be a " \
+              "string (from key {1})".format(v, k)
+        raise InvalidDimensionValue(msg)
+    if len(v) > 255 or len(v) < 1:
+        msg = "invalid length ({0}) for dimension value {1} from key {2}". \
+            format(len(v), v, k)
+        raise InvalidDimensionValue(msg)
+    if RESTRICTED_DIMENSION_CHARS.search(v):
+        msg = "invalid characters in dimension value {0} from key {1}".format(v, k)
+        raise InvalidDimensionValue(msg)
+
+
 def validate_dimensions(dimensions):
     for k, v in dimensions.iteritems():
-        if not isinstance(k, (str, unicode)):
-            msg = "invalid dimension key type: " \
-                  "{0} in {1} is not a string type".format(k, dimensions)
-            raise InvalidDimensionKey(msg)
-        if len(k) > 255 or len(k) < 1:
-            msg = "invalid length for dimension key {0}: {1}".\
-                format(k, dimensions)
-            raise InvalidDimensionKey(msg)
-        if RESTRICTED_DIMENSION_CHARS.search(k) or re.match('^_', k):
-            msg = "invalid characters in dimension key {0}: {1}".\
-                format(k, dimensions)
-            raise InvalidDimensionKey(msg)
-
-        if not isinstance(v, (str, unicode)):
-            msg = "invalid dimension value type: {0} for key {1} must be a " \
-                  "string: {2}".format(v, k, dimensions)
-            raise InvalidDimensionValue(msg)
-        if len(v) > 255 or len(v) < 1:
-            msg = "invalid length for dimension value {0} in key {1}: {2}".\
-                format(v, k, dimensions)
-            raise InvalidDimensionValue(msg)
-        if RESTRICTED_DIMENSION_CHARS.search(v):
-            msg = "invalid characters in dimension value {0} for key {1}: " \
-                  "{2}".format(v, k, dimensions)
-            raise InvalidDimensionValue(msg)
+        validate_dimension_key(k)
+        validate_dimension_value(k, v)
 
 
 def validate_name(name):
@@ -145,6 +154,9 @@ def validate_value(value):
     if not isinstance(value, (int, long, float)):
         msg = "invalid value type: {0} is not a number type for metric".\
             format(value)
+        raise InvalidValue(msg)
+    if math.isnan(value) or math.isinf(value):
+        msg = "invalid value: {0} is not a valid value for metric".format(value)
         raise InvalidValue(msg)
 
 

@@ -1,4 +1,4 @@
-# (C) Copyright 2016 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2016-2017 Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -126,7 +126,7 @@ class TestMetricValidation(unittest.TestCase):
                   "value": 5}
         self.assertRaisesRegexp(
             metric_validator.InvalidDimensionKey,
-            "invalid length for dimension key",
+            "invalid length \(0\) for dimension key",
             metric_validator.validate, metric)
 
     def test_invalid_dimension_empty_value(self):
@@ -136,7 +136,7 @@ class TestMetricValidation(unittest.TestCase):
                   "value": 5}
         self.assertRaisesRegexp(
             metric_validator.InvalidDimensionValue,
-            "invalid length for dimension value",
+            "invalid length \(0\) for dimension value",
             metric_validator.validate, metric)
 
     def test_invalid_dimension_non_str_key(self):
@@ -166,7 +166,7 @@ class TestMetricValidation(unittest.TestCase):
                   "value": 5}
         self.assertRaisesRegexp(
             metric_validator.InvalidDimensionKey,
-            "invalid length for dimension key",
+            "invalid length \(256\) for dimension key",
             metric_validator.validate, metric)
 
     def test_invalid_dimension_value_length(self):
@@ -176,7 +176,7 @@ class TestMetricValidation(unittest.TestCase):
                   "value": 5}
         self.assertRaisesRegexp(
             metric_validator.InvalidDimensionValue,
-            "invalid length for dimension value",
+            "invalid length \(256\) for dimension value",
             metric_validator.validate, metric)
 
     def test_invalid_dimension_key_restricted_characters(self):
@@ -209,7 +209,7 @@ class TestMetricValidation(unittest.TestCase):
             "invalid characters in dimension key",
             metric_validator.validate, metric)
 
-    def test_invalid_value(self):
+    def test_invalid_value_type(self):
         metric = {"name": "test_metric_name",
                   "dimensions": {"key1": "value1",
                                  "key2": "value2"},
@@ -219,6 +219,20 @@ class TestMetricValidation(unittest.TestCase):
             metric_validator.InvalidValue,
             "invalid value type",
             metric_validator.validate, metric)
+
+    def test_invalid_value(self):
+        metric = {"name": "test_metric_name",
+                  "dimensions": {"key1": "value1",
+                                 "key2": "value2"},
+                  "timestamp": 1405630174123,
+                  "value": None}
+
+        for value in ('nan', 'inf', '-inf'):
+            metric['value'] = float(value)
+            self.assertRaisesRegexp(
+                metric_validator.InvalidValue,
+                value,
+                metric_validator.validate, metric)
 
     def test_valid_name_chars(self):
         for c in valid_name_chars:
