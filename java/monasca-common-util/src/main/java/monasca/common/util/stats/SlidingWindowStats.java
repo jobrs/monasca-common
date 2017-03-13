@@ -27,7 +27,6 @@ import monasca.common.util.time.TimeResolution;
  */
 @NotThreadSafe
 public class SlidingWindowStats {
-public class SlidingWindowStats {
   private final TimeResolution timescale;
   private final long slotWidth;
   private final int numViewSlots;
